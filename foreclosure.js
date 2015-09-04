@@ -13,7 +13,7 @@ function loan() {
     defaulted : 0,
     defaultsToForeclose : 5,
     foreclosed : false
-  }
+  };
 
   function missPayment() {
     account.defaulted += 1;
@@ -25,14 +25,14 @@ function loan() {
   return {
     getBalance : function () { return account.balance;},
     receivePayment : function(amount) {
-       if (amount < account.monthlyPayment) {
+      if (amount < account.monthlyPayment) {
         missPayment();
-       }
-       account.balance -= amount;
-     },
-    getMonthlyPayment : function () { return account.monthlyPayment},
-    isForeclosed : function () { return account.foreclosed}
-  }
+      }
+      account.balance -= amount;
+    },
+    getMonthlyPayment : function () { return account.monthlyPayment; },
+    isForeclosed : function () { return account.foreclosed ;}
+  };
 }
 
 function borrower (loan) {
@@ -40,10 +40,30 @@ function borrower (loan) {
     monthlyIncome : 1350,
     funds : 2800,
     loan : loan
-  }
+  };
 
-  returns = {
-    getFunds : function () { return account.funds},
-    makePayment : function () { }
-  }
+  return {
+    getFunds : function () { return account.funds;},
+    makePayment : function () {
+      if ( account.funds > loan.monthlyPayment ) {
+        account.funds -= loan.monthlyPayment;
+        account.receivePayment(loan.monthlyPayment);
+      } else {
+        account.receivePayment(account.funds);
+        account.funds = 0;
+      }
+    },
+
+    payDay : function () {
+      account.funds += account.monthlyIncome;
+    }
+  };
+}
+stevesLoan = loan();
+steve = borrower(stevesLoan);
+
+while ( stevesLoan !== stevesLoan.forclosed) {
+  steve.payDay();
+  steve.makePayment();
+  month += 1;
 }
